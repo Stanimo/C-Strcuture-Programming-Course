@@ -1,0 +1,123 @@
+/*
+[X] Modify the singly linked list to be double linked list
+    [X] Data is random integers in the range if [0, 49]
+    [X] Have a list of 200 elements
+[X] Routine that removes all duplicate date in doubly linked list
+
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+typedef struct list {
+    int num;
+    struct list *next;
+    struct list *prev;
+} list;
+
+int is_empty(const list *l) {
+    return(l == NULL);
+}
+
+list *create_list(int new_num) {
+    list *result = malloc(sizeof(list));
+    result -> num = new_num;
+    result -> next = NULL;
+    result -> prev = NULL;
+    return result;
+}
+
+list *add_to_front(int num, list *h) {
+    list *tmp = create_list(num);
+    if(h == NULL) { //It seems that this part works, but no the thing outside if
+        h = tmp;
+        return h; // When add this breaks the infinte loop.
+    }
+    h -> prev = tmp; // the problem was tmp = h;
+    tmp -> next = h;
+    h = tmp;
+    return h;
+}
+
+void swap_numbers(int *a, int *b) {
+    int temp;
+    temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void sort_list(list *h) {
+    list *tmp = NULL;
+
+    printf("\n\nSorting...\n");
+    while(h != NULL) { //Base list loop
+        tmp = h -> next;
+        while(tmp != NULL) { //Auxiliary list loop
+            if(h -> num > tmp -> num){
+                swap_numbers((&h -> num), (&tmp -> num));
+            } 
+            tmp = tmp -> next;
+        }
+        h = h -> next;
+    }
+}
+
+void remove_duplicates(list *h) {
+    list *tmp = NULL;
+
+    printf("\n\nRemoving duplicates...\n");
+    while(h != NULL) {
+        tmp = h -> next;
+        while(tmp != NULL) {
+            if(tmp -> next == NULL) {
+                h -> next = NULL;
+                return;
+            }
+
+            if(h -> num != tmp -> num) {
+                tmp = tmp -> next;
+                break;
+            } else {
+                h -> next = tmp -> next;
+                tmp -> next -> prev = h;
+            }
+            tmp = tmp -> next;
+        }
+        h = h -> next;
+    }
+}
+
+void print_list(list *h, char *title) {
+    int i, j;
+    printf("\n%s\n", title);
+    while(h != NULL) {
+            printf("%d,\t\t", h -> num);
+            h = h -> next;
+    }
+}
+
+int main(void){
+    list *head = NULL;
+    list *tmp, *temp1;
+    int num_n = 49; // Highest number
+    int i = 0, rand_num, tmpNum;
+
+    srand(time(0)); // Will give different random numbers each time the program is run
+
+    while(i < 200) {
+        rand_num = (rand() % num_n);
+        head = add_to_front(rand_num, head);
+        i++;
+    }
+
+    print_list(head, "Random numbers list");
+
+    sort_list(head);
+    print_list(head, "Sorted list:");
+
+    remove_duplicates(head);
+    print_list(head, "No duplicates list:");
+
+    return 0;
+}
